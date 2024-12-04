@@ -102,8 +102,9 @@ Inductive trans: pi -> act -> pi -> Prop :=
   | PAR1  (a : act) (n m : nat) (P Q R: pi): 
     (a = Atau) \/ (a = Aout n m) -> 
     trans P a R -> trans (Par P Q) a (Par R Q)
-  | PAR2  (n : nat) (P Q R : pi):
-     trans P (About n) R -> trans (Par P Q) (About n) (Par R (push Q))
+  | PAR2  (a : act) (n : nat) (P Q R : pi):
+     a = (About n) \/ a = (Ain n) ->
+     trans P a R -> trans (Par P Q) a (Par R (push Q))
   | RES1  (n : nat) (P R : pi):
     trans P (Aout (n + 1) 0 ) R -> trans (Res P) (About n) R
   | COM1  (n m : nat) (P Q R S: pi) :
@@ -124,7 +125,7 @@ Proof.
 Example butstuff: 
   Par (Res (Out 7 0 Nil)) (In 9 Nil) -(About 6)> Par Nil (push (In 9 Nil)).
 Proof.
- apply PAR2. apply RES1. apply OUT. Qed.
+ apply PAR2 with (n:= 6). left. reflexivity. apply RES1. apply OUT. Qed.
 
 Example test_nil_par:
   Par Nil (In 0 Nil) == In 0 Nil.
