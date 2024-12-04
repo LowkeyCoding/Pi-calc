@@ -88,11 +88,47 @@ Inductive cong : pi -> pi -> Prop :=
   | CRepPar (P Q R: pi): cong P (Rep (Par Q R)) -> cong P (Par(Rep Q) (Rep R))
   where "P == Q" := (cong P Q).
 
+Inductive act : Set :=
+  | Atau: act
+  | Aout: nat -> nat -> act
+  | Ain:  nat -> act
+  | About: nat ->  act.
+
+
+Reserved Notation "P -( a )> Q" (at level 70).
+Inductive trans: pi -> act -> pi -> Prop := 
+  | OUT   (n m : nat) (P: pi): trans (Out n m P) (Aout n m) P
+  | IN    (n : nat) (P: pi): trans (In n P) (Ain n) P
+  | PAR1  (a : act) (n m : nat) (P Q R: pi): 
+    (a = Atau) \/ (a = Aout n m) -> 
+    trans P a R -> trans (Par P Q) a (Par R Q)
+  | PAR2  (n : nat) (P Q R : pi):
+     trans P (About n) R -> trans (Par P Q) (About n) (Par R (push Q))
+  | RES1  (n : nat) (P R : pi):
+    trans P (Aout (n + 1) 0 ) R -> trans (Res P) (About n) R
+  | COM1  (n m : nat) (P Q R S: pi) :
+    trans P (Ain n) R ->
+    trans Q (Aout n m) S ->
+    trans (Par P Q) Atau (Par (pop m 0 R) S)
+  where "P -( a )> Q" := (trans P a Q).
+
+ 
+
+
 
 Example test_nil:
   Res Nil == Nil .
 Proof.
   apply CSym. apply CNilRes. Qed.
+
+Example random:
+  Par (In 7 Nil) (Out 7 4 Nil) -(Atau)> Par (pop 4 0 Nil) (Nil).
+Proof. 
+ apply COM1 with (n:= 7). apply IN. apply OUT. Qed.
+Example butstuff: 
+  Par (Res (Out 7 0 Nil)) (In 9 Nil) -(About 6)> Par Nil (push (In 9 Nil)).
+Proof.
+ apply PAR2. apply RES1. apply OUT. Qed.
 
 Example test_nil_par:
   Par Nil (In 0 Nil) == In 0 Nil.
@@ -106,6 +142,8 @@ Example test_rep:
   Rep (In 0 Nil) ==  Par (Rep (In 0 Nil)) (In 0 Nil).
 Proof.
   apply CRep. apply CRef. Qed.
+
+
 
 
 
