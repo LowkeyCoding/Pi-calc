@@ -1,5 +1,4 @@
 Require Import Coq.Init.Nat.
-Require Import Coq.Classes.RelationClasses.
 Inductive pi : Type := 
  | Nil
  | Rep (P : pi)
@@ -98,17 +97,6 @@ Inductive utrans: pi -> pi -> Prop :=
     utrans P R
   where "P --> Q" := (utrans P Q).
 
-
-Instance reflexive_cong : Reflexive cong.
-  Proof.
-    intros x. apply CRef.
-  Qed.
-
-Instance symmetric_cong :  Symmetric cong.
-  Proof.
-    intros x. apply CSym.
-  Qed.
-
 Inductive act : Set :=
   | Atau: act
   | Aout: nat -> nat -> act
@@ -155,7 +143,6 @@ Inductive trans: pi -> act -> pi -> Prop :=
     trans (Par P Q) Atau (Res (Par R S))
   | REP   (a : act) (P Q: pi) : 
     trans (Par P (Rep P)) a Q -> trans (Rep P) a Q
-  | NOP (P Q : pi) : trans P Atau Q -> trans P Atau Q
   where "P -( a )> Q" := (trans P a Q).
 
 Theorem tau_proc :
@@ -222,12 +209,12 @@ Example test_nil:
 Proof.
   apply CSym. apply CNilRes. Qed.
 
-Example random:
+Example com11test:
   Par (In 7 Nil) (Out 7 4 Nil) -(Atau)> Par (pop 4 0 Nil) (Nil).
 Proof. 
  apply COM11 with (n:= 7). apply IN. apply OUT. Qed.
 
-Example FuckyWucky:
+Example com12test:
   Par (Out 7 4 Nil) (In 7 Nil) -(Atau)> Par (Nil) (pop 4 0 Nil).
 Proof.
   apply COM12 with (n:= 7). apply OUT. apply IN. Qed.
@@ -248,9 +235,3 @@ Example test_rep:
   Rep (In 0 Nil) ==  Par (Rep (In 0 Nil)) (In 0 Nil).
 Proof.
   apply CRep. apply CRef. Qed.
-
-
-
-
-
-
