@@ -1,5 +1,5 @@
 Require Import Coq.Init.Nat.
-
+Require Import Coq.Classes.RelationClasses.
 Inductive pi : Type := 
  | Nil
  | Rep (P : pi)
@@ -69,20 +69,19 @@ Reserved Notation "P == Q" (at level 70).
 Inductive cong : pi -> pi -> Prop :=
   | CRef    (P : pi)        : cong P P 
   | CSym    (P Q : pi)      : cong P Q -> cong Q P
-  | CTrans  (P Q R : pi)    : cong P Q -> cong Q R -> cong P R
+  | CTrans  (P Q R : pi)    : cong P Q -> cong Q R -> cong P R 
   | CParNil (P Q : pi)      : cong P Q -> cong P (Par Q Nil)
   | CNilRes                 : cong Nil (Res Nil)
   | CExt    (P Q R: pi)     : cong P (Res (Par (push Q) R))  -> cong P (Par Q (Res R ))
-  | CParRef (P Q R : pi)    : cong P (Par Q R) -> cong P (Par R Q)
+  | CParSym (P Q R : pi)    : cong P (Par Q R) -> cong P (Par R Q)
   | CParAsoc (P Q R S : pi) : cong P (Par Q (Par R S)) -> cong P (Par (Par Q R) S)
   | CRep (P Q : pi)         : cong Q (Rep P) -> cong Q (Par (Rep P) P)
   | CRepNil                 : cong Nil (Rep Nil)
   | CRepRep (P Q : pi)      : cong Q (Rep P) -> cong Q (Rep (Rep P))
   | CRepPar (P Q R: pi)     : cong P (Rep (Par Q R)) -> cong P (Par(Rep Q) (Rep R))
+  | CParExtra (P Q R S: pi) : cong P R -> cong Q S -> cong (Par P Q) (Par R S)
+  | CResExtra (P Q : pi)    : cong P Q -> cong (Res P) (Res Q)
   where "P == Q" := (cong P Q).
-
-
-
 
 Reserved Notation "P --> Q" (at level 70). 
 Inductive utrans: pi -> pi -> Prop :=
@@ -99,6 +98,17 @@ Inductive utrans: pi -> pi -> Prop :=
     utrans P R
   where "P --> Q" := (utrans P Q).
 
+
+Instance reflexive_cong : Reflexive cong.
+  Proof.
+    intros x. apply CRef.
+  Qed.
+
+Instance symmetric_cong :  Symmetric cong.
+  Proof.
+    intros x. apply CSym.
+  Qed.
+
 Inductive act : Set :=
   | Atau: act
   | Aout: nat -> nat -> act
@@ -109,9 +119,10 @@ Reserved Notation "P -( a )> Q" (at level 70).
 Inductive trans: pi -> act -> pi -> Prop := 
   | OUT   (n m : nat) (P: pi): trans (Out n m P) (Aout n m) P
   | IN    (n : nat) (P: pi): trans (In n P) (Ain n) P
-  | PAR1  (a : act) (n m : nat) (P Q R: pi): 
-    (a = Atau) \/ (a = Aout n m) -> 
-    trans P a R -> trans (Par P Q) a (Par R Q)
+  | PAR1  (n m : nat) (P Q R: pi): 
+    trans P (Aout n m) R -> trans (Par P Q) (Aout n m) (Par R Q)
+  | PAR12 (P Q R: pi): 
+    trans P (Atau) R -> trans (Par P Q) (Atau) (Par R Q)
   | PAR2  (a : act) (n : nat) (P Q R : pi):
      a = (About n) \/ a = (Ain n) ->
      trans P a R -> trans (Par P Q) a (Par R (push Q))
@@ -120,7 +131,7 @@ Inductive trans: pi -> act -> pi -> Prop :=
   | RES21 (n m : nat) (P Q : pi) :
      trans P (Aout (n + 1) (m + 1)) Q -> 
      trans (Res P) (Aout n m) (Res Q)
-  | RES22 (n : nat) (P Q : pi) :
+  | RES22 (P Q : pi) :
     trans P (Atau) Q -> 
     trans (Res P) (Atau) (Res Q)
   | RES3 (a: nat -> act) (n : nat) (P Q : pi) :
@@ -147,21 +158,65 @@ Inductive trans: pi -> act -> pi -> Prop :=
   | NOP (P Q : pi) : trans P Atau Q -> trans P Atau Q
   where "P -( a )> Q" := (trans P a Q).
 
+Theorem tau_proc :
+  forall (J K : pi ),
+    (J -(Atau)> K) -> (exists L : pi, J --> L).
+Proof.
+  intros.
+  Admitted.
 
-Theorem process_tau_transition :
+
+Theorem test : 
   forall (J K : pi),
-  (J --> K) ->
-  (exists L : pi, J -(Atau)> L).
+    (J --> K) -> (exists L : pi, J -(Atau)> L /\ K == L).
 Proof.
   intros.
   induction H.
-  - exists (Par P (pop m 0 Q)). 
+  - exists (Par P (pop m 0 Q)).
+    split.
     apply COM12 with (n:= n).
     apply OUT.
     apply IN.
-  -
-  
-exists (Par P (pop m 0 Q)). apply COM12.
+    reflexivity.
+  - induction IHutrans.
+    exists (Par x R). 
+    split.
+    apply PAR12.
+    destruct H0 as [H1 H2].
+    apply H1.
+    apply CParExtra.
+    destruct H0 as [H1 H2].
+    apply H2.
+    apply CRef.
+  - induction IHutrans.
+     exists (Res x).
+     split.
+     apply RES22.
+     destruct H0 as [H1 H2].
+     apply H1.
+     destruct H0 as [H1 H2].
+     apply CResExtra.
+     apply H2.
+  - induction IHutrans.
+    induction H.
+    * exists x.
+      destruct H2 as [H3 H4].
+      split.
+      apply H3.
+      apply CTrans with(Q:= S).
+      apply H1.
+      apply H4.
+   * exists x.
+      destruct IHcong.
+      destruct H2 as [H3 H4].
+      apply RCON with (Q:= P) (S:=S).
+      apply CSym. 
+      apply H.
+      apply H0.
+      apply CRef.
+      split.
+      Admitted.
+
 Example test_nil:
   Res Nil == Nil .
 Proof.
@@ -185,7 +240,7 @@ Example test_nil_par:
   Par Nil (In 0 Nil) == In 0 Nil.
 Proof.
   apply CSym. 
-  apply CParRef.
+  apply CParSym.
   apply CParNil.
   apply CRef. Qed.
 
