@@ -8,8 +8,8 @@ Require Import Coq.Init.Nat.
 
 Lemma one : 
   forall (P Q R Z T : pi),
-    (P === Q /\ Q -(Atau)> Z /\ R === Z) ->
-    (exists T : pi, P -(Atau)> T /\ R === T).
+    (P === Q /\  Q -()> Z /\ R === Z) ->
+    (exists T : pi, P -()> T /\ R === T).
 Proof.
   Admitted.
 
@@ -22,8 +22,8 @@ Proof.
 
 Theorem equiv_trans :
   forall (P P' : pi),
-    (P --> P' -> (exists R : pi, P -(Atau)> R /\ P' === R)) /\
-    (P -(Atau)> P' -> P --> P').
+    (P --> P' -> (exists R : pi, P -()> R /\ P' === R)) /\
+    (P -()> P' -> P --> P').
 Proof.
   intros.
   split.
@@ -65,4 +65,9 @@ Proof.
         apply H3.
   - intros.
     induction H.
+      * apply RRES.
+        apply IHtau_trans.
+      * apply RPAR.
+        apply IHtau_trans.
+      * Admitted.
       
