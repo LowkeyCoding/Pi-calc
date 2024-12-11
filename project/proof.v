@@ -11,17 +11,55 @@ Lemma one :
     (P === Q /\  Q -()> S /\ R === S) ->
     (exists T : pi, P -()> T /\ R === T).
 Proof.
+  intros.
+  destruct H as [H1 H2].
+  destruct H2 as [H2 H3].
+  induction H2.
   Admitted.
 
 Lemma two :
   forall (P Q P' Q' : pi) (n m : nat),
-    (P -(Aout n m)> P' /\ Q -(Ain n)> Q') ->
+    (P -(n , m)> P' /\ Q -(n)> Q') ->
     Par P Q --> Par P' (pop m 0  Q').
 Proof.
   intros.
   destruct H as [H1 H2].
   induction H1.
-  - induction H2. apply RCOM with (n := n0) (m := m0) (P:=P) (Q := Q').
+  - induction H2. 
+    + apply RCOM.
+    + apply RCON with (Q:= Par (Par (Out n m P) P0) Q) (S := Par (Par P (pop m 0 R)) Q). 
+      apply CParAsoc.
+      reflexivity.
+      apply RPAR.
+      apply IHfitrans.
+      simpl.
+      apply CParAsoc.      
+      apply CParExtra.
+      reflexivity.
+      apply CParExtra.
+      reflexivity.
+      apply CPushPop.
+      reflexivity.
+    + 
+    
+    apply RCON with 
+        (Q := Res (Par (push 0 (Out n m P)) P0)) 
+        (S := Res (Par (push 0 P) (pop (m+1) 0 Q))).
+      * apply CSym.
+        apply CExt.
+        reflexivity.
+      * simpl.
+        apply RRES.
+        assert (P0 === (In (n+1) Q)).
+        apply
+
+        apply RCOM with 
+          (n := n +1)
+          (m := m +1)
+          (P := push 0 P)
+          (Q := Q).
+
+        
 
 
 Lemma three :

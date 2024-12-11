@@ -20,14 +20,14 @@ Example swap_thing1:
 Proof. simpl. reflexivity. Qed.
 
 
-Fixpoint push (P : pi) : pi := 
+Fixpoint push (n : nat) (P : pi) : pi := 
   match P with 
   | Nil => Nil
-  | Par Q R => Par (push Q) (push R)
-  | Res Q => Res (push Q)
-  | In n Q => In (n+1) (push Q)
-  | Out n m Q => Out (n+1) (m+1) (push Q)
-  | Rep Q => Rep (push Q)
+  | Par Q R => Par (push n Q) (push n R)
+  | Res Q => Res (push (n+1) Q)
+  | In m Q => In (if leb n m then (m+1) else m) (push (n+1) Q)
+  | Out m l Q => Out (if leb n m then (m+1) else m) (if leb n l then (l+1) else l) (push n Q)
+  | Rep Q => Rep (push n Q)
   end.
 
 (*Notation "'popN' n t c" :=
