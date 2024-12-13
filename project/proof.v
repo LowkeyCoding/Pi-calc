@@ -6,6 +6,83 @@ Require Import PI.pi.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Init.Nat.
 
+
+Theorem n_plus_1_le_0' : forall n : nat, (n + 1 <=? 0) = false.
+Proof.
+  intros n.
+  destruct n; simpl.
+  - (* Case n = 0 *) reflexivity.
+  - (* Case n = S n' *) reflexivity.
+Qed.
+
+Theorem zero_lt_n_plus_1 : forall n : nat, (0 <? n + 1) = true.
+Proof.
+  intros n.
+  destruct n.
+  - (* Case n = 0 *)
+    simpl. reflexivity.
+  - (* Case n = S n' *)
+    simpl. reflexivity.
+Qed.
+
+Axiom n_pm_1 : forall n : nat, n + 1 - 1 = n.
+
+Lemma pop_z_push_o_id_:
+  forall (P : pi)(n c : nat),
+    (c_pop (n+1) c (c_push c P)) === P.
+Proof.
+  intros P.
+  unfold pop.
+  induction P.
+  - reflexivity.
+  - simpl.
+    intros n c.
+    apply CRepExtra.
+    apply IHP.
+  - simpl.
+    intros n c.
+    apply CResExtra.
+    apply IHP.
+  - simpl.
+    intros n c.
+    apply CParExtra.
+    apply IHP1.
+    apply IHP2.
+  - induction c.
+    simpl.
+    unfold popN.
+    rewrite zero_lt_n_plus_1 with (n :=n).
+    rewrite n_pm_1 with (n :=n).
+    apply CInExtra.
+    apply IHP.
+    simpl.
+
+Lemma push_pop_id: 
+  forall (P : pi)(n c : nat),
+  (c_pop n c (c_push 0 P)) === P.
+Proof.
+  Admitted.
+  (*intros P.
+  induction P.
+  - reflexivity.
+  - simpl.
+    intros n c.
+    apply CRepExtra.
+    apply IHP.
+  - simpl.
+    intros n c.
+    apply CResExtra.
+    apply IHP.
+  - simpl.
+    intros n c.
+    apply CParExtra.
+    apply IHP1.
+    apply IHP2.
+  - simpl.
+    Admitted.*)
+
+
+
 Lemma one : 
   forall (P Q R S T : pi),
     (P === Q /\  Q -()> S /\ R === S) ->
@@ -14,20 +91,30 @@ Proof.
   intros.
   destruct H as [H1 H2].
   destruct H2 as [H2 H3].
-  induction H2.
+Admitted.
+
+Lemma two' :
+  forall (P Q P' Q' : pi) (n m : nat),
+    (P -(n , m)> P' /\ Q -(n)> Q') ->
+    Par P Q --> Par P' (pop m  Q').
+Proof.
+  intros P Q P' Q'.
+  pose (H:= forall (n m : nat), P -( n, m )> P' /\ Q -( n )> Q').
+  induction n.
+  induction m.
   Admitted.
 
 Lemma two :
   forall (P Q P' Q' : pi) (n m : nat),
     (P -(n , m)> P' /\ Q -(n)> Q') ->
-    Par P Q --> Par P' (pop m 0  Q').
+    Par P Q --> Par P' (pop m  Q').
 Proof.
   intros.
   destruct H as [H1 H2].
   induction H1.
   - induction H2. 
     + apply RCOM.
-    + apply RCON with (Q:= Par (Par (Out n m P) P0) Q) (S := Par (Par P (pop m 0 R)) Q). 
+    + apply RCON with (Q:= Par (Par (Out n m P) P0) Q) (S := Par (Par P (pop m R)) Q). 
       apply CParAsoc.
       reflexivity.
       apply RPAR.
@@ -38,35 +125,31 @@ Proof.
       reflexivity.
       apply CParExtra.
       reflexivity.
-      apply CPushPop.
-      reflexivity.
-    + 
-    
-    apply RCON with 
-        (Q := Res (Par (push 0 (Out n m P)) P0)) 
-        (S := Res (Par (push 0 P) (pop (m+1) 0 Q))).
+      fold c_pop.
+      unfold push.
+      apply push_pop_id.
+    + apply RCON with 
+        (Q := Res (Par (push (Out n m P)) P0)) 
+        (S := Res (Par (push P) (pop (m+1) Q))).
       * apply CSym.
         apply CExt.
         reflexivity.
-      * simpl.
-        apply RRES.
-        assert (P0 === (In (n+1) Q)).
-        apply
-
-        apply RCOM with 
-          (n := n +1)
-          (m := m +1)
-          (P := push 0 P)
-          (Q := Q).
+      * apply RRES. (* (1) Missing RCOM. RCOM would add pop to Q*) 
+        apply RCOM.
+        simpl.  
+        admit.
 
         
 
 
 Lemma three :
   forall (P Q P' Q' : pi) (n : nat),
-    (P -(Ain n)> P' /\ Q -(About n)> Q') ->
+    (P -(n)> P' /\ Q -[n]> Q') ->
     Par P Q --> Res (Par P'  Q').
 Proof.
+  intros.
+  destruct H as [H1 H2].
+  induction H1.
     Admitted.
 
 Theorem equiv_trans :
