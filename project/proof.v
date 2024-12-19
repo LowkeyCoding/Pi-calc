@@ -6,10 +6,67 @@ Require Import PI.pi.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Init.Nat.
 
+
+Lemma push_pop_id: 
+  forall (P : pi)(n c : nat),
+  (c_pop n c (c_push 0 P)) === P.
+Proof.
+  intros P.
+  induction P.
+  - reflexivity.
+  - 
+  Admitted.
+
+Lemma pop_push_pop1:
+  forall (P : pi) (n : nat),
+    push (pop n P) === pop (n+1) P.
+Proof.
+  Admitted.
+Lemma swap_pop1_pop:
+  forall (P : pi) (n : nat),
+    (c_pop n 1 (swap P)) === c_pop n 0 P.
+Proof.
+  intros P.
+  induction P.
+  - reflexivity.
+  - Admitted. 
+
 Lemma one : 
   forall (P Q R S T : pi),
     (P === Q /\  Q -()> S /\ R === S) ->
     (exists T : pi, P -()> T /\ R === T).
+Proof.
+  Admitted.
+
+
+Lemma PushIn :
+  forall (P R : pi) (n : nat),
+    P -(n)> R ->
+    P -(n + 1)> R.
+Proof.
+  Admitted.
+
+Lemma PushOut :
+  forall (P R : pi) (n m: nat),
+    P -(n , m)> R -> 
+    push P -(n + 1, m + 1)> R.
+Proof.
+  Admitted.
+
+Lemma ComResIn :
+  forall (P Q R: pi) (n m : nat),
+    Q -( n )> R ->
+    Par (Out n m P) Q --> Par P (pop m R) ->
+    Res (Par (Out n (m+1) (push P)) Q) --> Res (Par (push P) (pop (m+1) R)).
+Proof.
+  Admitted.
+
+Lemma ComResOut :
+  forall (P Q R S: pi) (n m : nat),
+    P -(n+1, m+1)> R /\
+    Q -(n+1)> S /\
+    Par P Q --> Par R (pop (m+1) S) ->
+    Res (Par P (push Q)) --> Res (Par R (push (pop m S))).
 Proof.
   Admitted.
 
@@ -18,14 +75,132 @@ Lemma two :
     (P -(n , m)> P' /\ Q -(n)> Q') ->
     Par P Q --> Par P' (pop m Q').
 Proof.
-  Admitted.
-
+  intros.
+  destruct H as [H1 H2].
+  induction H1.
+  induction H2.
+  - apply RCOM.
+  - apply RCON with 
+    (Q:= Par (Par (Out n m P) P0) Q)
+    (S:= Par (Par P (pop m R)) Q).
+    + apply CParAsoc.
+      reflexivity.
+    + apply RPAR.
+      apply IHfil.
+    + apply CParAsoc.
+      apply CParExtra.
+      reflexivity.
+      apply CParExtra.
+      reflexivity.
+      fold c_pop.
+      apply push_pop_id.
+  - apply RCON with 
+      (Q := Res (Par ((Out (n+1) (m+1) (push P))) P0)) 
+      (S := Res (Par (push P) (pop (m+1) Q))).
+    + apply CSym.
+      apply CExt.
+      reflexivity.
+    + apply ComResIn with 
+        (n := n +1)
+        (m := m)
+        (P := P)
+        (Q := P0)
+        (R := Q).
+      apply H2.
+      apply IHfil.
+    + apply CSym.
+      apply CExt.
+      fold c_pop.
+      apply CResExtra.
+      apply CParExtra.
+      reflexivity.
+      unfold pop.
+      apply CSym.
+      simpl.
+      apply swap_pop1_pop with
+        (n:= m + 1).
+    - apply RCON with 
+      (Q := Par (Out n m P) (Par P0 (Rep P0)))
+      (S := Par P (pop m R) ).
+      + apply CParExtra.
+        reflexivity.
+        apply CParSym.
+        apply CRep.
+        reflexivity.
+      + apply IHfil.
+      + reflexivity.
+    - apply RCON with
+      (Q := Par (Par P Q) Q0)
+      (S := Par (Par R (pop m Q')) Q0).
+      + apply CSym.
+        apply CParAsoc.
+        apply CSym.
+        apply CParAsoc.
+        apply CParExtra.
+        reflexivity.
+        apply CParSym.
+        reflexivity.
+      + apply RPAR.
+        apply IHfol.
+        apply H2.
+      + apply CSym.
+        apply CParAsoc.
+        apply CSym.
+        apply CParAsoc.
+        apply CParExtra.
+        reflexivity.
+        apply CParSym.
+        reflexivity.
+    - apply RCON with
+      (Q := Res (Par P (push Q)))
+      (S := Res (Par Q0 (push (pop m Q')))).
+      + apply CSym.
+        apply CParSym.
+        apply CExt.
+        apply CResExtra.
+        apply CParSym.
+        reflexivity.
+      + apply ComResOut with
+          (n := n).
+        split.
+        apply H1.
+        split.
+        apply PushIn. (* Holy Fuckaroo *)
+        apply H2.
+        apply IHfol.
+        apply PushIn. (* Holy Fuckaroo Electric bogaloo *)
+        apply H2.
+      + apply CSym.
+        apply CExt2.
+        reflexivity.
+    - apply RCON with 
+        (Q := Par (Par P (Rep P)) Q)
+        (S := Par Q0 (pop m Q')).
+      + apply CParExtra.
+        apply CParSym.
+        apply CRep.
+        reflexivity.
+        reflexivity.
+      + apply IHfol.
+        apply H2.
+      + reflexivity.
+Qed.  
+        
+      
 
 Lemma three :
   forall (P Q P' Q' : pi) (n : nat),
     (P -(n)> P' /\ Q -[n]> Q') ->
     Par P Q --> Res (Par P'  Q').
 Proof.
+  intros.
+  destruct H as [H1 H2].
+  induction H1.
+  induction H2.
+  - apply RCON with 
+      (Q := Res (Par (In (n+1) (c_push 1 P)) P0))
+      (S := Res (Par P Q )).
+    +
     Admitted.
 
 
