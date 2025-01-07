@@ -17,11 +17,7 @@ Proof.
   - 
   Admitted.
 
-Lemma pop_push_pop1:
-  forall (P : pi) (n : nat),
-    push (pop n P) === pop (n+1) P.
-Proof.
-  Admitted.
+
 Lemma swap_pop1_pop:
   forall (P : pi) (n : nat),
     (c_pop n 1 (swap P)) === c_pop n 0 P.
