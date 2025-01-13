@@ -7,12 +7,11 @@ Inductive cong : pi -> pi -> Prop :=
   | CParNil (P Q : pi)      : cong P Q -> cong P (Par Q Nil)
   | CNilRes                 : cong Nil (Res Nil)
   | CExt    (P Q R: pi)     : cong P (Res (Par (push Q) R))  -> cong P (Par Q (Res R ))
+  | CExt2    (P Q R: pi)    : cong P (Res (Par Q (push R)))  -> cong P (Par (Res Q) R)
   | CParSym (P Q R : pi)    : cong P (Par Q R) -> cong P (Par R Q)
   | CParAsoc (P Q R S : pi) : cong P (Par Q (Par R S)) -> cong P (Par (Par Q R) S)
   | CRep (P Q : pi)         : cong Q (Rep P) -> cong Q (Par (Rep P) P)
   | CRepNil                 : cong Nil (Rep Nil)
-  | CRepRep (P Q : pi)      : cong Q (Rep P) -> cong Q (Rep (Rep P))
-  | CRepPar (P Q R: pi)     : cong P (Rep (Par Q R)) -> cong P (Par(Rep Q) (Rep R))
   | CParExtra (P Q R S: pi) : cong P R -> cong Q S -> cong (Par P Q) (Par R S)
   | CResExtra (P Q : pi)    : cong P Q -> cong (Res P) (Res Q)
   where "P === Q" := (cong P Q).
