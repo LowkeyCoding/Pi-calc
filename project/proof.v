@@ -84,9 +84,9 @@ Proof.
     + apply RPAR.
       apply IHfil.
     + apply CParAsoc.
-      apply CParExtra.
+      apply CParComp.
       reflexivity.
-      apply CParExtra.
+      apply CParComp.
       reflexivity.
       fold c_pop.
       apply push_pop_id.
@@ -94,7 +94,7 @@ Proof.
       (Q := Res (Par ((Out (n+1) (m+1) (push P))) P0)) 
       (S := Res (Par (push P) (pop (m+1) Q))).
     + apply CSym.
-      apply CExt.
+      apply CExtPar.
       reflexivity.
     + apply ComResIn with 
         (n := n +1)
@@ -105,10 +105,10 @@ Proof.
       apply H2.
       apply IHfil.
     + apply CSym.
-      apply CExt.
+      apply CExtPar.
       fold c_pop.
-      apply CResExtra.
-      apply CParExtra.
+      apply CResComp.
+      apply CParComp.
       reflexivity.
       unfold pop.
       apply CSym.
@@ -118,7 +118,7 @@ Proof.
     - apply RCON with 
       (Q := Par (Out n m P) (Par P0 (Rep P0)))
       (S := Par P (pop m R) ).
-      + apply CParExtra.
+      + apply CParComp.
         reflexivity.
         apply CParSym.
         apply CRep.
@@ -132,7 +132,7 @@ Proof.
         apply CParAsoc.
         apply CSym.
         apply CParAsoc.
-        apply CParExtra.
+        apply CParComp.
         reflexivity.
         apply CParSym.
         reflexivity.
@@ -143,7 +143,7 @@ Proof.
         apply CParAsoc.
         apply CSym.
         apply CParAsoc.
-        apply CParExtra.
+        apply CParComp.
         reflexivity.
         apply CParSym.
         reflexivity.
@@ -152,8 +152,8 @@ Proof.
       (S := Res (Par Q0 (push (pop m Q')))).
       + apply CSym.
         apply CParSym.
-        apply CExt.
-        apply CResExtra.
+        apply CExtPar.
+        apply CResComp.
         apply CParSym.
         reflexivity.
       + apply ComResOut with
@@ -167,12 +167,15 @@ Proof.
         apply PushIn. (* Holy Fuckaroo Electric bogaloo *)
         apply H2.
       + apply CSym.
-        apply CExt2.
+        apply CParSym.
+        apply CExtPar.
+        apply CResComp.
+        apply CParSym.
         reflexivity.
     - apply RCON with 
         (Q := Par (Par P (Rep P)) Q)
         (S := Par Q0 (pop m Q')).
-      + apply CParExtra.
+      + apply CParComp.
         apply CParSym.
         apply CRep.
         reflexivity.
@@ -222,7 +225,7 @@ Proof.
       split.
       * apply TPR. 
         apply H1.
-      * apply CParExtra. 
+      * apply CParComp. 
         apply H2.   
         reflexivity.
     +induction IHutrans.
@@ -231,11 +234,11 @@ Proof.
       split.
       * apply TRS. 
         apply H1.
-      * apply CResExtra. 
+      * apply CResComp. 
         apply H2.
      +induction IHutrans.
         apply one with (Q := Q) (S := x).
-        apply x. (*Hmmmmmmmmmmm*)
+        apply x. 
         split.
         apply H.
         destruct H2 as [H2 H3].
@@ -272,7 +275,7 @@ Proof.
           split.
           apply H0.
           apply H.
-        * apply CResExtra.
+        * apply CResComp.
           apply CParSym.
           reflexivity.
       + apply RPAR.
