@@ -27,7 +27,7 @@ Proof.
   - reflexivity.
   - Admitted. 
 
-Lemma one : 
+Lemma CongruentTau : 
   forall (P Q R S T : pi),
     (P === Q /\  Q -()> S /\ R === S) ->
     (exists T : pi, P -()> T /\ R === T).
@@ -66,7 +66,7 @@ Lemma ComResOut :
 Proof.
   Admitted.
 
-Lemma two :
+Lemma FreeCommunication :
   forall (P Q P' Q' : pi) (n m : nat),
     (P -(n , m)> P' /\ Q -(n)> Q') ->
     Par P Q --> Par P' (pop m Q').
@@ -187,7 +187,7 @@ Qed.
         
       
 
-Lemma three :
+Lemma BoundCommunication :
   forall (P Q P' Q' : pi) (n : nat),
     (P -(n)> P' /\ Q -[n]> Q') ->
     Par P Q --> Res (Par P'  Q').
@@ -237,7 +237,7 @@ Proof.
       * apply CResComp. 
         apply H2.
      +induction IHutrans.
-        apply one with (Q := Q) (S := x).
+        apply CongruentTau with (Q := Q) (S := x).
         apply x. 
         split.
         apply H.
@@ -252,17 +252,17 @@ Proof.
       + apply RCON with (Q := Par Q P) (S := Par S (pop m R)).
         apply CParSym.
         reflexivity.
-        apply two with (n:=n) (m:=m) (P := Q) (Q:=P) (P' := S) (Q' := R).
+        apply FreeCommunication with (n:=n) (m:=m) (P := Q) (Q:=P) (P' := S) (Q' := R).
         split.
         apply H0.
         apply H.
         apply CParSym.
         reflexivity.
-      + apply two with (n:=n) (m:=m) (P := P) (Q:=Q) (P' := R) (Q' := S).
+      + apply FreeCommunication with (n:=n) (m:=m) (P := P) (Q:=Q) (P' := R) (Q' := S).
         split.
         * apply H.
         * apply H0.
-      + apply three with (n:=n).
+      + apply BoundCommunication with (n:=n).
         split.
         * apply H.
         * apply H0.
@@ -271,7 +271,7 @@ Proof.
         (S := Res (Par S R)). 
         * apply CParSym.
           reflexivity.
-        * apply three with (n:=n).
+        * apply BoundCommunication with (n:=n).
           split.
           apply H0.
           apply H.
