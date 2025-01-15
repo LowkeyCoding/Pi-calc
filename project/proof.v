@@ -57,6 +57,13 @@ Lemma ComResIn :
 Proof.
   Admitted.
 
+Lemma ComResOut2 : 
+  forall (P Q S : pi) (n : nat),
+    Q -(n + 1, 0 )> S ->
+    Par (In (n +1) (c_push 1 P)) Q --> Par P S.
+Proof.
+  Admitted.
+
 Lemma ComResOut :
   forall (P Q R S: pi) (n m : nat),
     P -(n+1, m+1)> R /\
@@ -199,8 +206,36 @@ Proof.
   - apply RCON with 
       (Q := Res (Par (In (n+1) (c_push 1 P)) P0))
       (S := Res (Par P Q )).
-    +
-    Admitted.
+    + apply CSym.
+      apply CExtPar.
+      apply CResComp.
+      apply CParComp.
+      unfold push.
+      reflexivity.
+      reflexivity.
+    + apply RRES.
+      apply ComResOut2.
+      apply H.
+    + reflexivity.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - apply RCON with 
+    (Q := Par (Par P (Rep P)) Q )
+    (S := Res (Par R Q')).
+    + apply CSym.
+      apply CParComp.
+      apply CSym.
+      apply CParSym.
+      apply CRep.
+      reflexivity.
+      reflexivity.
+    + apply IHfil.
+      apply H2.
+    + reflexivity.
+Admitted.
 
 
 Theorem equiv_trans :
