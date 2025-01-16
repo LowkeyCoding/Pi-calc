@@ -32,8 +32,10 @@ Lemma CongruentTau :
     (P === Q /\  Q -()> S /\ R === S) ->
     (exists T : pi, P -()> T /\ R === T).
 Proof.
+  intros.
+  destruct H as [h1 [h2 h3]].
+  induction h2.
   Admitted.
-
 
 Lemma PushIn :
   forall (P R : pi) (n : nat),
@@ -168,10 +170,10 @@ Proof.
         split.
         apply H1.
         split.
-        apply PushIn. (* Holy Fuckaroo *)
+        apply PushIn. 
         apply H2.
         apply IHfol.
-        apply PushIn. (* Holy Fuckaroo Electric bogaloo *)
+        apply PushIn.
         apply H2.
       + apply CSym.
         apply CParSym.
@@ -247,14 +249,16 @@ Proof.
   split.
   - intros.
     induction H.
-    + exists (Par P (pop m Q)).
+    + (* R-COM*)
+      exists (Par P (pop m Q)). 
       split.
       apply TSFL with 
         (n := n).
       apply FO.
       apply FI.
       reflexivity.
-    + induction IHutrans.
+    + (* R-PAR *)
+     induction IHutrans.
       exists (Par x R).
       destruct H0 as [H1 H2].
       split.
@@ -263,7 +267,8 @@ Proof.
       * apply CParComp. 
         apply H2.   
         reflexivity.
-    +induction IHutrans.
+    + (* R-RES *)
+      induction IHutrans.
       exists (Res x).
       destruct H0 as [H1 H2].
       split.
@@ -271,20 +276,22 @@ Proof.
         apply H1.
       * apply CResComp. 
         apply H2.
-     +induction IHutrans.
-        apply CongruentTau with (Q := Q) (S := x).
-        apply x. 
-        split.
-        apply H.
-        destruct H2 as [H2 H3].
-        split.
-        * apply H2.
-        * apply CTrans with (Q:= S).
-          apply H1.
-          apply H3.
+     + (*R-CON*)
+      induction IHutrans.
+      apply CongruentTau with (Q := Q) (S := x).
+      apply x. 
+      split.
+      apply H.
+      destruct H2 as [H2 H3].
+      split.
+      * apply H2.
+      * apply CTrans with (Q:= S).
+        apply H1.
+        apply H3.
   - intros.
     induction H.
-      + apply RCON with (Q := Par Q P) (S := Par S (pop m R)).
+      + (* DB-Sync (O I) 1 *)
+        apply RCON with (Q := Par Q P) (S := Par S (pop m R)).
         apply CParSym.
         reflexivity.
         apply FreeCommunication with (n:=n) (m:=m) (P := Q) (Q:=P) (P' := S) (Q' := R).
@@ -293,15 +300,18 @@ Proof.
         apply H.
         apply CParSym.
         reflexivity.
-      + apply FreeCommunication with (n:=n) (m:=m) (P := P) (Q:=Q) (P' := R) (Q' := S).
+      + (* DB-Sync (I O) 1 *)
+        apply FreeCommunication with (n:=n) (m:=m) (P := P) (Q:=Q) (P' := R) (Q' := S).
         split.
         * apply H.
         * apply H0.
-      + apply BoundCommunication with (n:=n).
+      + (* DB-Sync (I O) 2 *)
+        apply BoundCommunication with (n:=n).
         split.
         * apply H.
         * apply H0.
-      + apply RCON with 
+      + (* DB-Sync (O I) 2 *)
+        apply RCON with 
         (Q := Par Q P)
         (S := Res (Par S R)). 
         * apply CParSym.
@@ -313,9 +323,11 @@ Proof.
         * apply CResComp.
           apply CParSym.
           reflexivity.
-      + apply RPAR.
+      + (* DB-Par (P) 1 *)
+        apply RPAR.
         apply IHtsl.
-      + apply RCON with
+      + (* DB-Par (Q) 1 *)
+        apply RCON with
         (Q := Par Q P)
         (S := Par R P).
         * apply CParSym.
@@ -324,9 +336,11 @@ Proof.
           apply IHtsl.
         * apply CParSym.
           reflexivity.
-      + apply RRES.
+      + (* DB-Res 2*)
+        apply RRES.
         apply IHtsl.
-      + apply RCON with 
+      + (* DB-Rep (tau)*)
+        apply RCON with 
         (Q := (Par P (Rep P)))
         (S := R).
         * apply CParSym.
