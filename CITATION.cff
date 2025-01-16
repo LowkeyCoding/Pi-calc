@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Walsted
+    given-names: Loke
+  - family-names: Rossander Kristensen
+    given-names: Nikolaj 
+  - family-names: Vang Kleist
+    given-names: Daniel 
+  - family-names: Buus Steffensen
+    given-names: Peter 
+  - family-names: Bennetzen
+    given-names: Benjamin 
+title: "Pi-Calc"
+version: 1.0.0
+license: "MIT"
+date-released: "2025-01-16"
+repository-code: "hhttps://github.com/LowkeyCoding/Pi-calc"
