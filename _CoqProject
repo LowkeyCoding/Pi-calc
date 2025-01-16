@@ -2,5 +2,5 @@
 project/pi.v
 project/cong.v
 project/debruijn.v
-project/unlabeled.v
+project/red.v
 project/labeled.v

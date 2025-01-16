@@ -4,18 +4,36 @@ Require Import Coq.Classes.RelationClasses.
 Reserved Notation "P === Q" (at level 70).
 
 Inductive cong : pi -> pi -> Prop :=
-  | CParNil (P Q : pi)      : cong P Q -> cong P (Par Q Nil)
-  | CNilRes                 : cong Nil (Res Nil)
-  | CExt    (P Q R: pi)     : cong P (Res (Par (push Q) R))  -> cong P (Par Q (Res R ))
-  | CExt2    (P Q R: pi)    : cong P (Res (Par Q (push R)))  -> cong P (Par (Res Q) R)
-  | CParSym (P Q R : pi)    : cong P (Par Q R) -> cong P (Par R Q)
-  | CParAsoc (P Q R S : pi) : cong P (Par Q (Par R S)) -> cong P (Par (Par Q R) S)
-  | CRep (P Q : pi)         : cong Q (Rep P) -> cong Q (Par (Rep P) P)
-  | CRepNil                 : cong Nil (Rep Nil)
-  | CParExtra (P Q R S: pi) : cong P R -> cong Q S -> cong (Par P Q) (Par R S)
-  | CResExtra (P Q : pi)    : cong P Q -> cong (Res P) (Res Q)
+  (* Replication *)
+  | CRep (P Q : pi): 
+    cong Q (Rep P) -> cong Q (Par (Rep P) P)
+  | CRepNil: 
+    cong Nil (Rep Nil)
+  (* Parralel composition *)
+  | CParNil (P Q : pi): 
+    cong P Q -> cong P (Par Q Nil)
+  | CParSym (P Q R : pi): 
+    cong P (Par Q R) -> cong P (Par R Q)
+  | CParAsoc (P Q R S : pi):
+    cong P (Par Q (Par R S)) -> cong P (Par (Par Q R) S)
+  (* Extension *)
+  | CExtNil: 
+    cong Nil (Res Nil)
+  | CExtPar (P Q R: pi): 
+    cong P (Res (Par (push Q) R))  -> cong P (Par Q (Res R ))
   where "P === Q" := (cong P Q).
 
+(* Compatibility *)
+Axiom CParComp :
+  forall (P Q R S: pi),
+    P === R -> Q === S -> (Par P Q) === (Par R S).
+
+Axiom CResComp :
+  forall (P Q : pi),
+    P === Q -> (Res P) === (Res Q).
+
+
+(* Equivalence relation *)
 Axiom CRef : 
   forall (P : pi),
     P === P.
@@ -45,4 +63,3 @@ Proof.
   unfold Transitive.
   apply CTrans.
 Qed.
-
